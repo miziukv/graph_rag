@@ -2,6 +2,10 @@ from openai import OpenAI
 
 client = OpenAI()
 
+def chunk(text: str):
+    pass
+
+
 def embed(input: str):
     response = client.embeddings.create(
         input = input,

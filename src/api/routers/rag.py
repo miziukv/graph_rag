@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
 
-app = FastAPI()
+router = APIRouter(prefix='/rag', tags=['rag'])
 
-@app.get('/answer')
+@router.get('/answer')
 def answer():
     pass
 
-@app.get('/')
+@router.get('/search')
 def search():
     pass
