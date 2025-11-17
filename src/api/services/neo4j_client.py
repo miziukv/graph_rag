@@ -23,7 +23,7 @@ class Neo4jClient:
         if not self.driver:
             self.driver = GraphDatabase.driver(URI, auth=AUTH)
             self.driver.verify_connectivity()
-            print("Connected to Neo4j")
+            print('Connection to Neo4j')
     
     def close(self):
         """Close the connection when app shuts down"""
@@ -90,7 +90,23 @@ class Neo4jClient:
             property_name: Property containing embeddings
             dimensions: Embedding dimensions (1536 for text-embedding-3-small)
         """
-        query = f"""
+        # Check if index already exists
+        check_query = """
+        SHOW INDEXES 
+        YIELD name, state
+        WHERE name = $index_name 
+        RETURN state
+        """
+        
+        try:
+            result = self.query(check_query, {"index_name": index_name})
+            if result and result[0].get("state") == "ONLINE":
+                return
+        except:
+            pass
+        
+        # Create the index
+        create_query = f"""
         CREATE VECTOR INDEX {index_name} IF NOT EXISTS
         FOR (n:{label})
         ON n.{property_name}
@@ -101,8 +117,12 @@ class Neo4jClient:
             }}
         }}
         """
-        self.query(query)
-        print(f"Created vector index: {index_name}")
+        
+        try:
+            self.query(create_query)
+        except Exception as e:
+            if "already exists" not in str(e).lower():
+                raise
     
     def vector_search(self, index_name: str, query_vector: List[float], limit: int = 10) -> List[Dict]:
         """

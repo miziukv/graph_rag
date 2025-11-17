@@ -153,14 +153,10 @@ def write_document(
 
 def create_vector_index_if_needed() -> None:
     """Create vector index on Chunk nodes if it doesn't exist."""
-    try:
-        neo4j_client.create_vector_index(
-            index_name="chunk_embeddings",
-            label="Chunk",
-            property_name="embedding",
-            dimensions=1536
-        )
-    except Exception as e:
-        # Index might already exist
-        print(f"Vector index creation: {e}")
+    neo4j_client.create_vector_index(
+        index_name="chunk_embeddings",
+        label="Chunk",
+        property_name="embedding",
+        dimensions=1536
+    )
 
